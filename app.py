@@ -1,36 +1,3 @@
-# --- CUSTOM UI UPGRADE ---
-st.markdown("""
-    <style>
-    /* Change the background color to match v0 dark theme */
-    .stApp {
-        background-color: #050505;
-    }
-    
-    /* Style the sidebar like the premium v0 menu */
-    [data-testid="stSidebar"] {
-        background-color: #0a0a0a;
-        border-right: 1px solid #1a1a1a;
-    }
-    
-    /* Make the buttons look like the "Analyze Report" button */
-    .stButton>button {
-        background-color: #00ffa3 !important;
-        color: #000000 !important;
-        border-radius: 8px !important;
-        font-weight: bold !important;
-        border: none !important;
-        padding: 0.5rem 2rem !important;
-    }
-
-    /* Create the "Glass" effect for headers */
-    .stHeader {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        border-radius: 12px;
-        padding: 20px;
-    }
-    </style>
-    """, unsafe_content=True)
 import streamlit as st  
 from google.genai import Client  
 import pymupdf  
