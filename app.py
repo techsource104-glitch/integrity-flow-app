@@ -63,7 +63,7 @@ if st.button("🚀 Run AI Analysis"):
                 - If SBR Appeal: Write a formal letter to the Claims Administrator.
                 - If Audit Compliance: Identify missing legal elements or coding errors.
                 - If PR-4 MMI Evaluation: Check for Whole Person Impairment (WPI) and MMI status.
-                - If Rating String Builder: Provide the AMA Guides 5th Ed. rating string code.
+                - If Rating String Builder: Provide the AMA Guides 5th Ed. rating string code and SHOW THE MATH for the Combined Values Chart
                 - If MTUS Justification: Cite specific MTUS medical guidelines for the requested treatment.
 
                 Analyze this report and provide a detailed professional result: {context_text}
