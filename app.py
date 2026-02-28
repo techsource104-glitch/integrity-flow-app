@@ -10,8 +10,9 @@ st.title("🛡️ IntegrityFlow AI: Revenue Integrity Portal")
 # --- 2. AUTHENTICATION ---
 # Ensure your Secret key in Streamlit is named GEMINI_API_KEY
 try:
-    api_key = st.secrets["AIzaSyBNFBoY039R_jaBtmEMgbXjRSjJsurL25k"]
-    genai.configure(api_key=api_key)
+    # TEMPORARY TEST - Replace 'AIzaSy...' with your real key
+api_key = "AIzaSyBNFBoY039R_jaBtmEMgbXjRSjJsurL25k" 
+genai.configure(api_key=api_key)
 except:
     st.error("API Key not found. Please check Streamlit Secrets.")
 
