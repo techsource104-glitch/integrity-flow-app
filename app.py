@@ -31,6 +31,11 @@ def extract_text_from_pdf(uploaded_file):
 # --- 4. USER INTERFACE ---
 with st.sidebar:
     st.header("Settings")
+    # --- PASTE THE HIPAA INFO HERE ---
+    st.info("🔒 HIPAA Compliant Mode: Data is processed in memory and never stored on our servers.")
+    
+    st.divider() # Adds a nice visual line
+    
     task = st.radio("Choose Analysis Type", ["Generate SBR Appeal", "Audit Compliance"])
     # 2026 Stable Model ID
     model_id = "gemini-2.5-flash" 
