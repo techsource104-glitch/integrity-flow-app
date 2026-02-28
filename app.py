@@ -1,13 +1,11 @@
-import streamlit as st
-from google.genai import Client  # <--- Use this specific import
-import pymupdf 
-
-# ... (Page Config) ...
-
 # --- 2. AUTHENTICATION ---
-# The new 2026 SDK uses a Client object
-api_key = "AIzaSyBNFBoY039R_jaBtmEMgbXjRSjJsurL25k"
-client = Client(api_key=api_key)
+# This looks for the key in Streamlit's hidden settings
+try:
+    api_key = st.secrets["GEMINI_API_KEY"]
+    client = Client(api_key=api_key)
+except Exception as e:
+    st.error("API Key not found in Secrets. Please add it to 'Manage App > Settings'.")
+    st.stop()
 
 # --- 3. HELPER FUNCTIONS ---
 def extract_text(uploaded_file):
