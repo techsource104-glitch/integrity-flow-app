@@ -1,45 +1,66 @@
+import streamlit as st  # Fixes the NameError
+from google.genai import Client  # Modern 2026 SDK import
+import pymupdf 
+
+# --- 1. PAGE CONFIG ---
+st.set_page_config(page_title="IntegrityFlow AI", layout="wide")
+st.title("🛡️ IntegrityFlow AI: Revenue Integrity Portal")
+
 # --- 2. AUTHENTICATION ---
-# This looks for the key in Streamlit's hidden settings
+# We use the Streamlit Secrets vault for safety
 try:
-    api_key = st.secrets["GEMINI_API_KEY"]
-    client = Client(api_key=api_key)
+    if "GEMINI_API_KEY" in st.secrets:
+        api_key = st.secrets["GEMINI_API_KEY"]
+        client = Client(api_key=api_key)
+    else:
+        st.error("API Key not found in Streamlit Secrets.")
+        st.stop()
 except Exception as e:
-    st.error("API Key not found in Secrets. Please add it to 'Manage App > Settings'.")
+    st.error(f"Configuration Error: {e}")
     st.stop()
 
 # --- 3. HELPER FUNCTIONS ---
-def extract_text(uploaded_file):
+def extract_text_from_pdf(uploaded_file):
+    """Extracts text from uploaded PDF using PyMuPDF."""
     doc = pymupdf.open(stream=uploaded_file.read(), filetype="pdf")
-    return "".join([page.get_text() for page in doc])
+    text = ""
+    for page in doc:
+        text += page.get_text()
+    return text
 
-# --- 4. UI ---
-task = st.sidebar.radio("Task", ["Generate SBR Appeal", "Audit Report"])
+# --- 4. USER INTERFACE ---
+with st.sidebar:
+    st.header("Settings")
+    task = st.radio("Choose Analysis Type", ["Generate SBR Appeal", "Audit Compliance"])
+    # 2026 Stable Model ID
+    model_id = "gemini-2.5-flash" 
+
 uploaded_report = st.file_uploader("Upload Medical Report (PDF)", type="pdf")
 
 if st.button("🚀 Run AI Analysis"):
     if uploaded_report:
-        with st.spinner("Analyzing with Gemini 3 Flash..."):
+        with st.spinner(f"Analyzing with {model_id}..."):
             try:
-                raw_text = extract_text(uploaded_report)[:15000] # Gemini 3 handles more text!
+                # 1. Extract text
+                report_text = extract_text_from_pdf(uploaded_report)
                 
-                # FIXED: Use the 2026 stable model name
-                # Options: 'gemini-2.5-flash' (Stable) or 'gemini-3-flash-preview' (Latest)
-                model_id = 'gemini-2.5-flash' 
+                # 2. Limit text to avoid token overflow (approx 15k chars)
+                context_text = report_text[:15000]
                 
-                prompt = f"System: You are a CA Workers Comp Expert. Task: {task}. Analyze this medical report: {raw_text}"
+                # 3. Call the Gemini 2026 API
+                prompt = f"System: You are a California Workers Comp expert. Task: {task}. Analyze this report and provide a professional result: {context_text}"
                 
-                # New SDK call format
                 response = client.models.generate_content(
                     model=model_id,
                     contents=prompt
                 )
                 
+                # 4. Display Result
                 st.success("Analysis Complete!")
-                st.markdown("### AI Analysis Result")
+                st.markdown("### AI Output")
                 st.write(response.text)
                 
             except Exception as e:
-                st.error(f"AI Error: {str(e)}")
-                st.info("Tip: If gemini-2.5-flash fails, try changing the model_id to 'gemini-3-flash-preview'.")
+                st.error(f"AI Execution Error: {e}")
     else:
-        st.error("Please upload a PDF first.")
+        st.warning("Please upload a PDF file first.")
