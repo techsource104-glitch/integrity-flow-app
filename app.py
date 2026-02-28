@@ -65,16 +65,19 @@ if st.button("🚀 Run AI Analysis"):
                 
                 pdf = FPDF()
                 pdf.add_page()
-                pdf.set_font("Arial", size=12)
-                # Ensure text is compatible with PDF encoding
+                pdf.set_font("Helvetica", size=12) # Helvetica is more standard for 2026 PDFs
+                
+                # Clean the text for PDF compatibility
                 clean_text = analysis_result.encode('latin-1', 'replace').decode('latin-1')
                 pdf.multi_cell(0, 10, txt=clean_text)
                 
-                pdf_output = pdf.output(dest='S') # Removed extra .encode here as output(dest='S') is already bytes
+                # Get the PDF as a bytearray and convert to standard bytes
+                pdf_data = pdf.output() 
+                binary_pdf = bytes(pdf_data) # This fixes the 'Invalid binary data' error
                 
                 st.download_button(
                     label="📥 Download SBR Appeal as PDF",
-                    data=pdf_output,
+                    data=binary_pdf,
                     file_name="SBR_Appeal_Report.pdf",
                     mime="application/pdf"
                 )
