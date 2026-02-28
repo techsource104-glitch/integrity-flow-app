@@ -5,9 +5,72 @@ from fpdf import FPDF
 
 # --- 1. PAGE CONFIG ---
 st.set_page_config(page_title="IntegrityFlow AI", layout="wide")
-st.title("🛡️ IntegrityFlow AI: Revenue Integrity Portal")
 
-# --- 2. AUTHENTICATION ---
+# --- CUSTOM UI DESIGN (v0.dev Style) ---
+st.markdown("""
+    <style>
+    /* Main Background */
+    .stApp {
+        background-color: #050505;
+        color: #FFFFFF;
+    }
+    
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: #0a0a0a;
+        border-right: 1px solid #1a1a1a;
+    }
+    
+    /* HIPAA Badge */
+    .hipaa-badge {
+        background-color: rgba(0, 255, 163, 0.1);
+        color: #00ffa3;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(0, 255, 163, 0.3);
+        font-size: 0.8rem;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* Buttons - The "IntegrityFlow Green" */
+    .stButton>button {
+        background-color: #00ffa3 !important;
+        color: #000000 !important;
+        border-radius: 8px !important;
+        border: none !important;
+        font-weight: 700 !important;
+        width: 100% !important;
+        padding: 0.6rem !important;
+        transition: 0.3s !important;
+    }
+    .stButton>button:hover {
+        background-color: #00cc82 !important;
+        transform: translateY(-2px);
+    }
+
+    /* Radio Buttons / Selectors */
+    .stRadio [data-testid="stWidgetLabel"] {
+        color: #888888 !important;
+        font-weight: 600 !important;
+    }
+
+    /* Success/Info Messages */
+    .stAlert {
+        background-color: #111111 !important;
+        border: 1px solid #333333 !important;
+        color: #00ffa3 !important;
+    }
+
+    /* Title Styling */
+    h1 {
+        font-weight: 800 !important;
+        letter-spacing: -1px !important;
+    }
+    </style>
+    """, unsafe_content=True)
+
+# --- 2. AUTHENTICATION (Unchanged) ---
 try:
     if "GEMINI_API_KEY" in st.secrets:
         api_key = st.secrets["GEMINI_API_KEY"]
@@ -19,7 +82,7 @@ except Exception as e:
     st.error(f"Configuration Error: {e}")
     st.stop()
 
-# --- 3. HELPER FUNCTIONS ---
+# --- 3. HELPER FUNCTIONS (Unchanged) ---
 def extract_text_from_pdf(uploaded_file):
     doc = pymupdf.open(stream=uploaded_file.read(), filetype="pdf")
     text = ""
@@ -28,10 +91,12 @@ def extract_text_from_pdf(uploaded_file):
     return text
 
 # --- 4. USER INTERFACE ---
+st.title("🛡️ IntegrityFlow AI")
+st.markdown("<p style='color: #888; margin-top: -20px;'>Revenue Integrity Portal</p>", unsafe_content=True)
+
 with st.sidebar:
+    st.markdown('<div class="hipaa-badge">🔒 HIPAA Compliant Mode Active</div>', unsafe_content=True)
     st.header("IntegrityFlow Tools")
-    st.info("🔒 HIPAA Compliant Mode Active")
-    st.divider() 
     
     task = st.radio(
         "Select Clinical Task", 
@@ -45,11 +110,12 @@ with st.sidebar:
     )
     model_id = "gemini-2.5-flash" 
 
+# File Uploader Styled
 uploaded_report = st.file_uploader("Upload Medical Report (PDF)", type="pdf")
 
 if st.button("🚀 Run AI Analysis"):
     if uploaded_report:
-        with st.spinner(f"Analyzing..."):
+        with st.spinner(f"Processing {task}..."):
             try:
                 # 1. Extract text
                 report_text = extract_text_from_pdf(uploaded_report)
@@ -75,11 +141,15 @@ if st.button("🚀 Run AI Analysis"):
                     contents=prompt
                 )
                 
-                # 4. Display Result
+                # 4. Display Result in a Styled Container
                 st.success("Analysis Complete!")
                 st.markdown(f"### AI {task} Result")
                 analysis_result = response.text
-                st.write(analysis_result)
+                
+                with st.container():
+                    st.markdown("""<div style="background-color: #0a0a0a; padding: 20px; border-radius: 12px; border: 1px solid #1a1a1a;">""", unsafe_content=True)
+                    st.write(analysis_result)
+                    st.markdown("""</div>""", unsafe_content=True)
                 
                 # 5. PDF DOWNLOADER
                 st.divider()
