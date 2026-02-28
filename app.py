@@ -1,15 +1,13 @@
 import streamlit as st
-from google import genai
+from google.genai import Client  # <--- Use this specific import
 import pymupdf 
 
-# --- 1. PAGE CONFIG ---
-st.set_page_config(page_title="IntegrityFlow AI", layout="wide")
-st.title("🛡️ IntegrityFlow AI: Revenue Integrity Portal")
+# ... (Page Config) ...
 
 # --- 2. AUTHENTICATION ---
-# Use the new SDK client initialization
+# The new 2026 SDK uses a Client object
 api_key = "AIzaSyBNFBoY039R_jaBtmEMgbXjRSjJsurL25k"
-client = genai.Client(api_key=api_key)
+client = Client(api_key=api_key)
 
 # --- 3. HELPER FUNCTIONS ---
 def extract_text(uploaded_file):
