@@ -33,7 +33,6 @@ with st.sidebar:
     st.info("🔒 HIPAA Compliant Mode Active")
     st.divider() 
     
-    # UPDATED: All 5 professional tasks
     task = st.radio(
         "Select Clinical Task", 
         [
@@ -50,13 +49,13 @@ uploaded_report = st.file_uploader("Upload Medical Report (PDF)", type="pdf")
 
 if st.button("🚀 Run AI Analysis"):
     if uploaded_report:
-        with st.spinner(f"Analyzing with {model_id}..."):
+        with st.spinner(f"Analyzing..."):
             try:
                 # 1. Extract text
                 report_text = extract_text_from_pdf(uploaded_report)
                 context_text = report_text[:15000]
                 
-                # 2. UPDATED PROMPT: Handling all 5 tasks dynamically
+                # 2. Expert Prompt Logic
                 prompt = f"""
                 System: You are an expert in California Workers' Compensation (Labor Code & MTUS).
                 Current Task: {task}.
@@ -70,7 +69,7 @@ if st.button("🚀 Run AI Analysis"):
                 Analyze this report and provide a detailed professional result: {context_text}
                 """
                 
-                # 3. Call the Gemini 2026 API
+                # 3. Call Gemini
                 response = client.models.generate_content(
                     model=model_id,
                     contents=prompt
