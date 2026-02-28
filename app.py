@@ -6,7 +6,7 @@ st.set_page_config(page_title="IntegrityFlow AI", layout="wide")
 st.title("🛡️ IntegrityFlow AI: Revenue Integrity Portal")
 
 # AUTHENTICATION
-api_key = "AIzaSyBNFBoY039R_jaBtmEMgbXjRSjJsurL25k"
+api_key = ""
 genai.configure(api_key=api_key)
 
 # --- 1. MODEL FINDER (The Magic Fix) ---
