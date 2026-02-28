@@ -1,39 +1,49 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 import pymupdf 
 
+# --- 1. PAGE CONFIG ---
 st.set_page_config(page_title="IntegrityFlow AI", layout="wide")
 st.title("🛡️ IntegrityFlow AI: Revenue Integrity Portal")
 
-# AUTHENTICATION
-api_key = ""
-genai.configure(api_key=api_key)
+# --- 2. AUTHENTICATION ---
+# Use the new SDK client initialization
+api_key = "AIzaSyBNFBoY039R_jaBtmEMgbXjRSjJsurL25k"
+client = genai.Client(api_key=api_key)
 
-# --- 1. MODEL FINDER (The Magic Fix) ---
-try:
-    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-    # We prioritize Gemini 3, then 2, then 1.5
-    target_model = next((m for m in available_models if "gemini-3-flash" in m), 
-                   next((m for m in available_models if "gemini-1.5-flash" in m), available_models[0]))
-    st.sidebar.success(f"Using Model: {target_model}")
-except Exception as e:
-    st.error(f"Could not list models: {e}")
-    target_model = "gemini-1.5-flash" # Fallback
+# --- 3. HELPER FUNCTIONS ---
+def extract_text(uploaded_file):
+    doc = pymupdf.open(stream=uploaded_file.read(), filetype="pdf")
+    return "".join([page.get_text() for page in doc])
 
-# --- 2. UI & LOGIC ---
+# --- 4. UI ---
+task = st.sidebar.radio("Task", ["Generate SBR Appeal", "Audit Report"])
 uploaded_report = st.file_uploader("Upload Medical Report (PDF)", type="pdf")
 
 if st.button("🚀 Run AI Analysis"):
     if uploaded_report:
-        with st.spinner("Analyzing..."):
+        with st.spinner("Analyzing with Gemini 3 Flash..."):
             try:
-                doc = pymupdf.open(stream=uploaded_report.read(), filetype="pdf")
-                raw_text = "".join([page.get_text() for page in doc])[:10000]
+                raw_text = extract_text(uploaded_report)[:15000] # Gemini 3 handles more text!
                 
-                model = genai.GenerativeModel(target_model)
-                response = model.generate_content(f"Analyze this CA Workers Comp report: {raw_text}")
+                # FIXED: Use the 2026 stable model name
+                # Options: 'gemini-2.5-flash' (Stable) or 'gemini-3-flash-preview' (Latest)
+                model_id = 'gemini-2.5-flash' 
                 
-                st.markdown("### Analysis Result")
+                prompt = f"System: You are a CA Workers Comp Expert. Task: {task}. Analyze this medical report: {raw_text}"
+                
+                # New SDK call format
+                response = client.models.generate_content(
+                    model=model_id,
+                    contents=prompt
+                )
+                
+                st.success("Analysis Complete!")
+                st.markdown("### AI Analysis Result")
                 st.write(response.text)
+                
             except Exception as e:
                 st.error(f"AI Error: {str(e)}")
+                st.info("Tip: If gemini-2.5-flash fails, try changing the model_id to 'gemini-3-flash-preview'.")
+    else:
+        st.error("Please upload a PDF first.")
